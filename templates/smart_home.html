@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/smart_home_style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumi</title>
+</head>
+<body>
+    <div class="card">
+        <h2>Сценарии</h2>
+        <nav id="scripts">
+            <!-- <a href="scripts.html">Включить свет</a>
+            <a href="scripts.html">Выключить свет</a>
+            <a href="scripts.html">Автомат. вкл. увлажнителя</a> -->
+        </nav>
+        <a class="btn" href="scripts.html">+</a>
+    </div>
+    <div class="card">
+        <h2>Устройства</h2>
+        <nav id="devices">
+            <form method="GET" action="{% url 'smart_home_set_value' %}">
+                {% for device in devices %}
+                    <div class = "{{ device.type }}">
+                        {% if device.type  == "rosette" %}
+                            <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect x="1" y="1" width="68" height="68" rx="34" fill="#FEFBFB" stroke="#878383" stroke-width="2"/><rect x="10" y="10" width="50" height="50" rx="25" fill="url(#paint0_linear)"/><circle cx="25" cy="35" r="5" fill="#302F2F"/><circle cx="45" cy="35" r="5" fill="#302F2F"/><defs><linearGradient id="paint0_linear" x1="28.5" y1="27.5" x2="60" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#BCBCBC"/><stop offset="1" stop-color="#FEFBFB" stop-opacity="0"/></linearGradient></defs></svg>
+                        {% else %}
+                            <svg width="39" height="79" viewBox="0 0 39 79" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="19.5" cy="59.5" r="18.5" fill="#F2EEEE" stroke="#878383" stroke-width="2"/><rect x="10" y="1" width="18" height="66" rx="9" fill="#F2EEEE" stroke="#878383" stroke-width="2"/><circle cx="19.5" cy="59.5" r="17.5" fill="#F2EEEE"/><circle cx="19" cy="60" r="10" fill="#878383"/><rect x="17" y="26" width="5" height="42" rx="2.5" fill="#878383"/><line x1="20" y1="18" x2="27" y2="18" stroke="#878383" stroke-width="2"/><line x1="20" y1="10" x2="27" y2="10" stroke="#878383" stroke-width="2"/></svg>
+                        {% endif %}
+                        <p>{{ device.name }}</p>
+                        {% if device.type  == "rosette" %}
+                            <div class="wrap">
+                                <input class="onOff" name="{{ device.name }}" type="checkbox" id="s{{ device.name }}" {% if device.value %} checked="on" {% endif %}/>
+                                <label class="slider-v3" for="s{{ device.name }}"></label>
+                            </div>
+                        {% else %}
+                            <p>{{ device.value_temp }}С°/{{ device.value_hum }}%</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <input id="refresh-btn" class="btn" type="submit" value="Обновить"/>
+            </form>
+        </nav>
+        <a class="btn" href="devices.html">+</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel=stylesheet href="{% static 'css/style.css' %}">
+    <link rel=stylesheet href="{% static 'css/main_style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vice</title>
+</head>
+<body>
+    <form action="{% url 'search_people' %}" method="POST" class="search_people">
+        {% csrf_token %}
+        <input name="people">
+        <button type="submit" class="btn" id="btn">Найти</button>
+    </form>
+    </div>
+    {% for people in peoples %}
+        <br>
+        <div class="people" style="width: auto;">
+            <p class="logo">{{people.0}}</p>
+            <a href="{% url 'vice' people %}">{{ people }}</a>
+        </div>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,149 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <link rel=stylesheet href="{% static 'css/main_style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vice</title>
+</head>
+<body id="display">
+    <header>
+        <div class="menu">
+            <button id="menu_btn"></button>
+            <p class="logo">{{ p.0 }}</p>
+            <h3>{{ p }}</h3>
+        </div>
+    </header>
+    <main>
+        <div id="messages" class="base_messages">
+            <div class="panel">
+                <div class="col">
+                    <div class="row">
+                        <a href="{% url 'smart_home' %}" class="btn">Умный дом</a>
+                        <a href="{% url 'search_people' %}" class="btn">Поиск</a>
+                    </div>
+
+                    <div id="chat_setting" class="chat_setting">
+                        <div class="row">
+                            <input id="name_chat" name="name_chat" placeholder="Имя чата">
+                        </div>
+                        <div class="row">
+                            <select id="select_type_chat">
+                                <option>Публичный чат</option>
+                                <option>Приватный чат</option>
+                            </select>
+                        </div>
+                        <div class="row" id="password_field">
+                            <input type="password" id="password_chat" name="password_chat" placeholder="Пароль для чата">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <button id="create_chat_btn" class="btn">Создать чат</button>
+                    </div>
+                </div>
+            </div>
+            {% for people in peoples %}
+                <br>
+                <div class="people">
+                    <p class="logo">{{people.0}}</p>
+                    <a href="{% url 'vice' people %}">{{ people }}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+    <footer>
+        <div id="content" class="empty">
+            {% for message in messages %}
+                {{ message|safe }}
+            {% endfor %}              
+        </div>
+        <div class="write_letter">
+            {% csrf_token %}
+            <input name="file" type="file" name="file" id="input__file" class="input input__file" multiple>
+            <label for="input__file" class="input__file-button">
+                <span class="input__file-icon-wrapper"><img class="input__file-icon" src="{% static 'img/add.svg' %}" alt="" width="35"></span>
+             </label>
+            <input id="send_message" name="message">
+            <input type="button" id="send_btn"></input>
+        </div>
+    </footer>
+    <script>
+        var n = document.getElementById("select_type_chat").options.selectedIndex;
+        console.log(n);
+        if(n == 0){
+            password_field.classList.toggle("none");
+        }
+        select_type_chat.addEventListener("change", selectedElement);
+        function selectedElement(){
+            password_field.classList.toggle("none");
+        }
+    </script>
+    <script>
+        "use strict"
+        create_chat_btn.addEventListener("click",fOpen)
+        function fOpen() {
+            chat_setting.classList.toggle("chat_setting_open")
+        }
+    </script>
+    <script>
+        "use strict"
+        menu_btn.addEventListener("click",fOpen)
+        function fOpen() {
+            messages.classList.toggle("menu_open")
+        }
+    </script>
+    <script>
+
+        var chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/messages/');
+        var chatFileSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/files/');
+
+        chatSocket.onmessage = function(e) {
+            var data = JSON.parse(e.data);
+            var message = data['message'];
+            document.querySelector('#content').innerHTML += ("<p>" + message + "</p>" + '\n');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+ 
+        document.querySelector('#send_message').focus();
+        document.querySelector('#send_message').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#send_btn').click();
+            }
+        };
+
+        document.querySelector('#send_btn').onclick = function(e) {
+            var messageInputDom = document.querySelector('#send_message');
+            var message = messageInputDom.value;
+
+            var file = document.querySelector('#input__file').files;
+            if (file.length != 0)
+            {
+                for(var i = 0; i < file.length; i++){
+                    var file_name = (file[i].name).split(".")[1]
+                    while(file_name.length != 32){
+                        file_name+=" ";
+                    }
+                    var data_file = new Blob([file_name, file[i]]);
+                    chatFileSocket.send(data_file);
+                }
+            }
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+
+            messageInputDom.value = '';
+        };
+    </script>
+</body>
+</html>
